@@ -3,6 +3,168 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>익명 이미지 게시판</title>
+<style>
+  :root { --bg:#f6f6f4; --card:#fff; --text:#1c1c1c; --muted:#777; --line:#e2e2de; --accent:#2f6fed; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#141414; --card:#1e1e1e; --text:#eee; --muted:#999; --line:#333; --accent:#6b9bff; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+         background:var(--bg); color:var(--text); display:flex; justify-content:center; padding:48px 16px; }
+  main { width:100%; max-width:960px; }
+  .top { max-width:480px; margin:0 auto; }
+  h1 { font-size:22px; margin:0 0 6px; }
+  p.sub { color:var(--muted); margin:0 0 24px; font-size:14px; }
+  #drop { display:block; border:2px dashed var(--line); border-radius:14px; background:var(--card);
+          padding:40px 16px; text-align:center; cursor:pointer; transition:border-color .15s; }
+  #drop.over { border-color:var(--accent); }
+  #drop span { color:var(--muted); font-size:14px; }
+  input[type=file] { display:none; }
+  #status { margin:16px 0 0; font-size:14px; color:var(--muted); min-height:20px; }
+  #result { display:none; margin-top:16px; background:var(--card); border:1px solid var(--line);
+            border-radius:14px; padding:16px; }
+  #result img { width:100%; border-radius:8px; display:block; margin-bottom:12px; }
+  .row { display:flex; gap:8px; }
+  .row input { flex:1; min-width:0; padding:10px; border:1px solid var(--line); border-radius:8px;
+               background:var(--bg); color:var(--text); font-size:13px; }
+  button { padding:10px 14px; border:0; border-radius:8px; background:var(--accent); color:#fff;
+           font-size:14px; cursor:pointer; white-space:nowrap; }
+  footer { margin-top:28px; font-size:12px; color:var(--muted); line-height:1.6; text-align:center; }
+  h2 { font-size:16px; margin:36px 0 12px; }
+  #gallery { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; }
+  #gallery a { display:block; aspect-ratio:1; border-radius:10px; overflow:hidden; background:var(--card); border:1px solid var(--line); }
+  #gallery img { width:100%; height:100%; object-fit:cover; display:block; }
+  #empty { color:var(--muted); font-size:14px; }
+</style>
+</head>
+<body>
+<main>
+<div class="top">
+  <h1>익명 이미지 게시판</h1>
+  <p class="sub">로그인·닉네임 없이 이미지를 올리면 아래에 바로 게시됩니다.</p>
+
+  <label id="drop">
+    <input id="file" type="file" accept="image/*">
+    <strong>이미지를 끌어다 놓거나 클릭</strong><br>
+    <span>JPG · PNG · GIF · WEBP / 최대 4MB (큰 사진은 자동 축소)</span>
+  </label>
+
+  <div id="status"></div>
+
+  <div id="result">
+    <img id="preview" alt="">
+    <div class="row">
+      <input id="link" readonly>
+      <button id="copy">복사</button>
+    </div>
+  </div>
+
+</div>
+
+  <h2>게시된 이미지</h2>
+  <div id="gallery"></div>
+  <p id="empty" hidden>아직 올라온 이미지가 없어요.</p>
+
+  <footer>
+    누가 올렸는지(IP·이름 등)는 저장하지 않습니다. 사진의 위치 정보도 올리기 전에 지워집니다.
+  </footer>
+</main>
+
+<script>
+const MAX = 4 * 1024 * 1024;           // Vercel 함수 요청 한도(4.5MB)보다 살짝 작게
+const $ = (id) => document.getElementById(id);
+const drop = $('drop'), fileInput = $('file'), status = $('status');
+
+fileInput.addEventListener('change', () => fileInput.files[0] && handle(fileInput.files[0]));
+drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('over'); });
+drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+drop.addEventListener('drop', (e) => {
+  e.preventDefault(); drop.classList.remove('over');
+  if (e.dataTransfer.files[0]) handle(e.dataTransfer.files[0]);
+});
+document.addEventListener('paste', (e) => {
+  const f = [...e.clipboardData.files].find((f) => f.type.startsWith('image/'));
+  if (f) handle(f);
+});
+
+$('copy').addEventListener('click', async () => {
+  await navigator.clipboard.writeText($('link').value);
+  $('copy').textContent = '복사됨';
+  setTimeout(() => ($('copy').textContent = '복사'), 1500);
+});
+
+async function handle(file) {
+  if (!file.type.startsWith('image/')) return (status.textContent = '이미지 파일만 올릴 수 있어요.');
+  try {
+    status.textContent = '준비 중…';
+    // JPG/PNG는 캔버스로 다시 그려 EXIF(촬영 위치·기기 정보)를 제거하고, 크면 축소
+    let blob = file;
+    if (file.type !== 'image/gif') blob = await reencode(file);
+    if (blob.size > MAX) return (status.textContent = '파일이 너무 커요 (최대 4MB).');
+
+    status.textContent = '업로드 중…';
+    const ext = blob.type.split('/')[1] || 'jpg';
+    const res = await fetch('/api/upload?ext=' + encodeURIComponent(ext), {
+      method: 'POST',
+      headers: { 'content-type': blob.type },
+      body: blob,
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || '업로드 실패');
+
+    $('preview').src = data.url;
+    $('link').value = data.url;
+    $('result').style.display = 'block';
+    status.textContent = '게시됐어요!';
+    loadGallery();
+  } catch (err) {
+    status.textContent = '오류: ' + err.message;
+  } finally {
+    fileInput.value = '';
+  }
+}
+
+async function loadGallery() {
+  try {
+    const items = await (await fetch('/api/list', { cache: 'no-store' })).json();
+    const g = $('gallery');
+    g.innerHTML = '';
+    for (const it of items) {
+      const a = document.createElement('a');
+      a.href = it.url; a.target = '_blank'; a.rel = 'noopener';
+      const img = document.createElement('img');
+      img.src = it.url; img.loading = 'lazy'; img.alt = '';
+      a.appendChild(img); g.appendChild(a);
+    }
+    $('empty').hidden = items.length > 0;
+  } catch (e) {}
+}
+loadGallery();
+
+async function reencode(file) {
+  const bmp = await createImageBitmap(file);
+  let scale = 1, out;
+  const type = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+  do {
+    const c = document.createElement('canvas');
+    c.width = Math.round(bmp.width * scale);
+    c.height = Math.round(bmp.height * scale);
+    c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+    out = await new Promise((r) => c.toBlob(r, type, 0.9));
+    scale *= 0.75;
+  } while (out.size > MAX && scale > 0.1);
+  return out;
+}
+</script>
+</body>
+</html>
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="no-referrer">
 <title>익명 이미지 공유</title>
