@@ -14,20 +14,21 @@
   [hidden] { display:none !important; }
   body { margin:0; font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
          background:var(--bg); color:var(--text); font-size:14px; }
+  body.lock { overflow:hidden; }
   button { font:inherit; color:inherit; background:none; border:0; padding:0; cursor:pointer; }
   input, textarea { font:inherit; color:var(--text); }
   header.bar { position:sticky; top:0; z-index:10; background:var(--card); border-bottom:1px solid var(--line); }
-  header.bar div { max-width:470px; margin:0 auto; padding:12px 16px; display:flex; align-items:center; justify-content:space-between; }
+  header.bar div { max-width:760px; margin:0 auto; padding:12px 16px; display:flex; align-items:center; justify-content:space-between; }
   header.bar h1 { font-size:18px; margin:0; letter-spacing:-.2px; }
   header.bar .new { font-weight:600; color:var(--accent); }
-  main { max-width:470px; margin:0 auto; padding:16px 0 48px; }
+  main { max-width:760px; margin:0 auto; padding:16px 12px 48px; }
+  @media (max-width:500px) { main { padding:10px 8px 40px; } }
 
   /* ---------- 글쓰기 ---------- */
-  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; margin:0 0 16px; }
-  @media (max-width:500px) { .card { border-radius:0; border-left:0; border-right:0; } }
-  #composer { padding:16px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; }
+  #composer { padding:16px; max-width:470px; margin:0 auto 16px; }
   #composer h2 { font-size:15px; margin:0 0 12px; }
-  #drop { display:block; border:2px dashed var(--line); border-radius:10px; padding:28px 12px; text-align:center; cursor:pointer; transition:border-color .15s; }
+  #drop { display:block; border:2px dashed var(--line); border-radius:10px; padding:24px 12px; text-align:center; cursor:pointer; transition:border-color .15s; }
   #drop.over { border-color:var(--accent); }
   #drop span { color:var(--muted); font-size:13px; }
   input[type=file] { display:none; }
@@ -39,53 +40,84 @@
   .thumb .n { position:absolute; left:6px; bottom:4px; color:#fff; font-size:12px; text-shadow:0 0 3px #000; }
   .thumb.add { display:flex; align-items:center; justify-content:center; border:2px dashed var(--line); background:none; color:var(--muted); font-size:28px; }
   .field { display:block; width:100%; margin-top:10px; padding:10px 12px; border:1px solid var(--line); border-radius:8px; background:var(--bg); }
-  textarea.field { resize:vertical; min-height:60px; }
+  textarea.field { resize:vertical; min-height:56px; }
   .hint { color:var(--muted); font-size:12px; margin-top:6px; }
   .primary { margin-top:12px; width:100%; padding:10px; border-radius:8px; background:var(--accent); color:#fff; font-weight:600; }
   .primary:disabled { opacity:.45; cursor:default; }
-  #status { margin-top:10px; font-size:13px; color:var(--muted); min-height:18px; }
+  #status { margin-top:8px; font-size:13px; color:var(--muted); }
+  #status:empty { display:none; }
 
-  /* ---------- 피드 ---------- */
-  .post .head { display:flex; align-items:center; gap:10px; padding:10px 12px; }
+  /* ---------- 2열 피드 ---------- */
+  #feed { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:12px; align-items:start; }
+  @media (max-width:500px) { #feed { gap:8px; } }
+  .tile { overflow:hidden; cursor:pointer; }
+  .tile .head { display:flex; align-items:center; gap:6px; padding:8px 10px; min-width:0; }
+  .tile .head b { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
+  .tile .head .time { margin-left:auto; flex:none; font-size:12px; }
+  .tile .avatar { width:22px; height:22px; font-size:11px; }
+  .tile .media { aspect-ratio:1; }
+  .tile .track img { object-fit:cover; }
+  .tile .nav { display:none; }
+  .tile .meta { display:flex; align-items:center; gap:12px; padding:8px 10px 2px; }
+  .tile .meta button, .tile .meta span { display:flex; align-items:center; gap:4px; font-weight:600; font-size:13px; }
+  .tile .meta svg { width:20px; height:20px; }
+  .tile .cap { margin:2px 10px 10px; color:var(--text); font-size:13px; line-height:1.4; overflow:hidden;
+               display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; word-break:break-word; }
+  .tile .cap:empty { margin:0 0 8px; }
+  @media (max-width:500px) {
+    .tile .head { padding:6px 8px; }
+    .tile .head .time { display:none; }
+    .tile .meta { padding:6px 8px 2px; gap:10px; }
+    .tile .cap { margin:2px 8px 8px; font-size:12px; }
+  }
+
+  /* ---------- 공통: 사진 / 아이콘 ---------- */
   .avatar { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:13px; flex:none; }
   .who { font-weight:600; }
   .anon { color:var(--muted); font-weight:600; }
-  .dot { color:var(--muted); }
-  .time { color:var(--muted); }
+  .time, .dot { color:var(--muted); }
   .media { position:relative; background:var(--soft); aspect-ratio:1; overflow:hidden; user-select:none; }
   .track { display:flex; height:100%; overflow-x:auto; scroll-snap-type:x mandatory; scrollbar-width:none; }
   .track::-webkit-scrollbar { display:none; }
   .track img { flex:0 0 100%; width:100%; height:100%; object-fit:contain; scroll-snap-align:center; display:block; -webkit-user-drag:none; }
   .nav { position:absolute; top:50%; transform:translateY(-50%); width:28px; height:28px; border-radius:50%; background:rgba(255,255,255,.85); color:#000; font-size:16px; line-height:28px; box-shadow:0 1px 4px rgba(0,0,0,.3); }
   .nav.prev { left:8px; } .nav.next { right:8px; }
-  .count { position:absolute; top:10px; right:10px; background:rgba(0,0,0,.6); color:#fff; font-size:12px; padding:3px 8px; border-radius:12px; }
+  .count { position:absolute; top:8px; right:8px; background:rgba(0,0,0,.6); color:#fff; font-size:11px; padding:2px 7px; border-radius:12px; }
   .burst { position:absolute; left:50%; top:50%; width:96px; height:96px; margin:-48px 0 0 -48px; fill:#fff; opacity:0; pointer-events:none; filter:drop-shadow(0 2px 8px rgba(0,0,0,.4)); }
   .burst.go { animation:burst .8s ease-out; }
   @keyframes burst { 0%{opacity:0;transform:scale(.4)} 15%{opacity:1;transform:scale(1.15)} 30%{transform:scale(1)} 75%{opacity:1} 100%{opacity:0;transform:scale(1)} }
-  .dots { display:flex; justify-content:center; gap:4px; padding-top:10px; height:16px; }
+  .dots { display:flex; justify-content:center; gap:4px; padding-top:8px; height:14px; }
   .dots i { width:6px; height:6px; border-radius:50%; background:var(--line); }
   .dots i.on { background:var(--accent); }
-  .actions { display:flex; align-items:center; gap:14px; padding:4px 12px 0; margin-top:-16px; }
-  .actions button { display:flex; padding:6px 0; }
-  .actions svg { width:24px; height:24px; fill:none; stroke:var(--text); stroke-width:1.9; stroke-linejoin:round; stroke-linecap:round; }
-  .actions .like.on svg { fill:var(--heart); stroke:var(--heart); }
-  .actions .like.pop svg { animation:pop .35s ease; }
+  svg.ic { width:24px; height:24px; fill:none; stroke:var(--text); stroke-width:1.9; stroke-linejoin:round; stroke-linecap:round; }
+  .like.on svg { fill:var(--heart); stroke:var(--heart); }
+  .like.pop svg { animation:pop .35s ease; }
   @keyframes pop { 50%{transform:scale(1.25)} }
-  .actions .right { margin-left:auto; }
-  .body { padding:4px 12px 12px; line-height:1.45; }
+
+  /* ---------- 크게 보기 (게시물 상세) ---------- */
+  #modal { position:fixed; inset:0; z-index:30; background:rgba(0,0,0,.65); display:flex; align-items:flex-start; justify-content:center; overflow-y:auto; padding:40px 12px; }
+  #modal .close { position:fixed; top:8px; right:10px; width:36px; height:36px; border-radius:50%; background:rgba(0,0,0,.55); color:#fff; font-size:26px; line-height:36px; z-index:31; }
+  .post { width:100%; max-width:470px; }
+  @media (max-width:500px) { #modal { padding:52px 0 0; } .post { border-radius:12px 12px 0 0; border:0; min-height:100%; } }
+  .post .head { display:flex; align-items:center; gap:10px; padding:10px 12px; }
+  .post .actions { display:flex; align-items:center; gap:14px; padding:4px 12px 0; margin-top:-14px; }
+  .post .actions button { display:flex; padding:6px 0; }
+  .post .actions .right { margin-left:auto; }
+  .post .body { padding:4px 12px 12px; line-height:1.45; }
   .likes { font-weight:600; margin:2px 0 6px; }
   .caption, .comment { margin:3px 0; word-break:break-word; white-space:pre-wrap; }
   .caption b, .comment b { margin-right:6px; }
-  .more { color:var(--muted); margin:4px 0; display:block; }
+  .comments-empty { color:var(--muted); margin:6px 0; }
   .ago { color:var(--muted); font-size:11px; margin-top:6px; letter-spacing:.2px; }
   .cform { display:flex; align-items:center; gap:8px; border-top:1px solid var(--line); padding:6px 12px; }
   .cform input { flex:1; min-width:0; border:0; background:none; padding:8px 0; outline:none; }
   .cform button { color:var(--accent); font-weight:600; }
   .cform button:disabled { opacity:.4; cursor:default; }
-  #more { display:block; margin:8px auto; color:var(--accent); font-weight:600; padding:8px 16px; }
+
+  #more { display:block; margin:12px auto; color:var(--accent); font-weight:600; padding:8px 16px; }
   #empty, #loading { text-align:center; color:var(--muted); padding:24px 0; }
   footer { margin-top:24px; font-size:12px; color:var(--muted); line-height:1.6; text-align:center; padding:0 16px; }
-  .toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:#262626; color:#fff; padding:10px 16px; border-radius:8px; font-size:13px; opacity:0; transition:opacity .2s; pointer-events:none; z-index:20; }
+  .toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:#262626; color:#fff; padding:10px 16px; border-radius:8px; font-size:13px; opacity:0; transition:opacity .2s; pointer-events:none; z-index:40; }
   .toast.show { opacity:1; }
 </style>
 </head>
@@ -121,6 +153,7 @@
     닉네임은 직접 입력한 경우에만 표시돼요.
   </footer>
 </main>
+<div id="modal" hidden><button class="close" title="닫기">×</button></div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -145,9 +178,9 @@ function toast(msg) {
 
 // ---------- 아이콘 ----------
 const ICON = {
-  heart: '<svg viewBox="0 0 24 24"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 7.9 3.6 4.5 7 4.5c2 0 3.6 1.1 5 3 1.4-1.9 3-3 5-3 3.4 0 5.6 3.4 4.3 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>',
-  comment: '<svg viewBox="0 0 24 24"><path d="M20.5 12a8.5 8.5 0 0 1-12.6 7.4L3.5 20.5l1.1-4.2A8.5 8.5 0 1 1 20.5 12z"/></svg>',
-  link: '<svg viewBox="0 0 24 24"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1.2 1.2"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1.2-1.2"/></svg>',
+  heart: '<svg class="ic" viewBox="0 0 24 24"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 7.9 3.6 4.5 7 4.5c2 0 3.6 1.1 5 3 1.4-1.9 3-3 5-3 3.4 0 5.6 3.4 4.3 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>',
+  comment: '<svg class="ic" viewBox="0 0 24 24"><path d="M20.5 12a8.5 8.5 0 0 1-12.6 7.4L3.5 20.5l1.1-4.2A8.5 8.5 0 1 1 20.5 12z"/></svg>',
+  link: '<svg class="ic" viewBox="0 0 24 24"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1.2 1.2"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1.2-1.2"/></svg>',
   burst: '<svg class="burst" viewBox="0 0 24 24"><path d="M12 21.5s-8-4.9-9.9-9.8C.7 8 3.1 4 7 4c2.1 0 3.8 1.1 5 3 1.2-1.9 2.9-3 5-3 3.9 0 6.3 4 4.9 7.7-1.9 4.9-9.9 9.8-9.9 9.8z"/></svg>',
 };
 
@@ -157,7 +190,7 @@ const fileInput = $('file'), drop = $('drop'), status = $('status');
 
 $('nick').value = store.get('nick', '');
 $('nick').addEventListener('input', () => { store.set('nick', myNick()); refreshCommentPlaceholders(); });
-$('newBtn').addEventListener('click', () => { $('composer').scrollIntoView({ behavior: 'smooth' }); fileInput.click(); });
+$('newBtn').addEventListener('click', () => { closeModal(); $('composer').scrollIntoView({ behavior: 'smooth' }); fileInput.click(); });
 
 fileInput.addEventListener('change', () => { addFiles(fileInput.files); fileInput.value = ''; });
 drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('over'); });
@@ -213,7 +246,7 @@ $('submit').addEventListener('click', async () => {
     picked = []; $('caption').value = ''; renderThumbs();
     status.textContent = '';
     $('empty').hidden = true;
-    $('feed').prepend(renderPost(data.post));
+    $('feed').prepend(renderTile(stateOf(data.post)));
     toast('게시됐어요!');
   } catch (err) {
     status.textContent = '오류: ' + err.message;
@@ -254,6 +287,35 @@ async function api(url, payload) {
   return data;
 }
 
+// ---------- 게시물 상태 (목록 칸과 크게 보기 화면이 같이 씀) ----------
+const states = new Map();
+function stateOf(p) {
+  let s = states.get(p.id);
+  if (!s) {
+    s = { p, likes: p.likes || 0, total: p.commentCount || 0, comments: p.comments || [], subs: new Set(), busy: false };
+    s.paint = () => s.subs.forEach((f) => f());
+    states.set(p.id, s);
+  }
+  return s;
+}
+
+async function toggleLike(s, force) {
+  const id = s.p.id;
+  const on = force ?? !liked.has(id);
+  if (on === liked.has(id) || s.busy) return;
+  s.busy = true;
+  on ? liked.add(id) : liked.delete(id); saveLiked();
+  s.likes = Math.max(0, s.likes + (on ? 1 : -1)); s.pop = on; s.paint(); s.pop = false;
+  try { s.likes = (await api('/api/like', { id, on })).likes; }
+  catch (e) { on ? liked.delete(id) : liked.add(id); saveLiked(); s.likes = Math.max(0, s.likes + (on ? -1 : 1)); toast('좋아요 실패: ' + e.message); }
+  s.busy = false; s.paint();
+}
+
+function paintLikeBtn(btn, s) {
+  btn.classList.toggle('on', liked.has(s.p.id));
+  if (s.pop) { btn.classList.remove('pop'); void btn.offsetWidth; btn.classList.add('pop'); }
+}
+
 // ---------- 피드 ----------
 let nextOffset = 0, loadingFeed = false;
 
@@ -263,8 +325,7 @@ async function loadFeed() {
   try {
     const { posts, next } = await api('/api/posts?offset=' + nextOffset);
     const feed = $('feed');
-    const shown = new Set([...feed.children].map((c) => c.dataset.id));
-    for (const p of posts) if (!shown.has(p.id)) feed.append(renderPost(p));
+    for (const p of posts) if (!states.has(p.id)) feed.append(renderTile(stateOf(p)));
     nextOffset = next;
     $('empty').hidden = feed.children.length > 0;
   } catch (e) {
@@ -284,32 +345,26 @@ function avatar(nick) {
 }
 const nameEl = (nick) => el('b', nick ? 'who' : 'anon', nick || '익명');
 
-function ago(iso) {
+function ago(iso, short) {
   const s = (Date.now() - new Date(iso)) / 1000;
   if (s < 60) return '방금 전';
   if (s < 3600) return `${Math.floor(s / 60)}분 전`;
   if (s < 86400) return `${Math.floor(s / 3600)}시간 전`;
   if (s < 86400 * 7) return `${Math.floor(s / 86400)}일 전`;
   const d = new Date(iso);
-  return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`;
+  return short ? `${d.getMonth() + 1}월 ${d.getDate()}일` : `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`;
 }
 
-function renderPost(p) {
-  const card = el('article', 'card post'); card.dataset.id = p.id;
-
-  // 머리
-  const head = el('div', 'head');
-  head.append(avatar(p.nick), nameEl(p.nick), el('span', 'dot', '•'), el('span', 'time', ago(p.at)));
-
-  // 사진 (여러 장이면 넘겨보기)
+// 사진 영역 (여러 장이면 옆으로 넘겨보기)
+function buildMedia(p, { fitFirst } = {}) {
   const media = el('div', 'media');
   const track = el('div', 'track');
   p.images.forEach((src, i) => {
     const img = el('img'); img.src = src; img.alt = ''; img.loading = 'lazy'; img.draggable = false;
-    if (i === 0) img.onload = () => {
-      const r = Math.min(1.91, Math.max(0.8, img.naturalWidth / img.naturalHeight)); // 인스타처럼 4:5 ~ 1.91:1
-      media.style.aspectRatio = r;
-    };
+    if (fitFirst && i === 0) {
+      const fit = () => { media.style.aspectRatio = Math.min(1.91, Math.max(0.8, img.naturalWidth / img.naturalHeight)); }; // 4:5 ~ 1.91:1
+      img.complete && img.naturalWidth ? fit() : (img.onload = fit);
+    }
     track.append(img);
   });
   media.append(track);
@@ -320,7 +375,8 @@ function renderPost(p) {
     const count = el('span', 'count');
     p.images.forEach(() => dots.append(el('i')));
     const go = (d) => track.scrollBy({ left: d * track.clientWidth, behavior: 'smooth' });
-    prev.onclick = () => go(-1); next.onclick = () => go(1);
+    prev.onclick = (e) => { e.stopPropagation(); go(-1); };
+    next.onclick = (e) => { e.stopPropagation(); go(1); };
     const sync = () => {
       const i = Math.round(track.scrollLeft / Math.max(1, track.clientWidth));
       [...dots.children].forEach((d, j) => d.classList.toggle('on', j === i));
@@ -331,45 +387,103 @@ function renderPost(p) {
     media.append(prev, next, count);
     requestAnimationFrame(sync);
   }
+  const current = () => Math.round(track.scrollLeft / Math.max(1, track.clientWidth));
+  return { media, dots, current };
+}
 
-  // 버튼들
+// 목록 칸 (2열): 사진 + 좋아요·댓글 수 + 문구 두 줄. 누르면 크게 보기
+function renderTile(s) {
+  const p = s.p;
+  const tile = el('article', 'card tile'); tile.dataset.id = p.id;
+
+  const head = el('div', 'head');
+  head.append(avatar(p.nick), nameEl(p.nick), el('span', 'time', ago(p.at, true)));
+
+  const { media } = buildMedia(p);
+
+  const meta = el('div', 'meta');
+  const likeBtn = el('button', 'like'); likeBtn.title = '좋아요';
+  likeBtn.innerHTML = ICON.heart; const likeN = el('span'); likeBtn.append(likeN);
+  const cBox = el('span'); cBox.innerHTML = ICON.comment; const cN = el('span'); cBox.append(cN);
+  meta.append(likeBtn, cBox);
+  likeBtn.onclick = (e) => { e.stopPropagation(); toggleLike(s); };
+
+  const cap = el('div', 'cap', p.caption || '');
+
+  const paint = () => {
+    paintLikeBtn(likeBtn, s);
+    likeN.textContent = s.likes.toLocaleString();
+    cN.textContent = s.total.toLocaleString();
+  };
+  s.subs.add(paint); paint();
+
+  tile.append(head, media, meta, cap);
+  tile.addEventListener('click', (e) => {
+    if (e.target.closest('.like')) return;
+    openPost(s);
+  });
+  return tile;
+}
+
+// ---------- 크게 보기 ----------
+const modal = $('modal');
+let closeCurrent = null;
+modal.addEventListener('click', (e) => { if (e.target === modal || e.target.closest('.close')) closeModal(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+window.addEventListener('popstate', () => { if (!modal.hidden) closeModal(true); });
+
+function closeModal(fromHistory) {
+  if (modal.hidden) return;
+  closeCurrent?.(); closeCurrent = null;
+  modal.querySelector('.post')?.remove();
+  modal.hidden = true; document.body.classList.remove('lock');
+  if (!fromHistory && history.state?.post) history.back();
+}
+
+function openPost(s) {
+  closeModal();
+  const card = renderDetail(s);
+  modal.append(card); modal.hidden = false; modal.scrollTop = 0;
+  document.body.classList.add('lock');
+  history.pushState({ post: s.p.id }, ''); // 휴대폰 뒤로가기로 닫히게
+}
+
+function renderDetail(s) {
+  const p = s.p;
+  const card = el('article', 'card post');
+
+  const head = el('div', 'head');
+  head.append(avatar(p.nick), nameEl(p.nick), el('span', 'dot', '•'), el('span', 'time', ago(p.at)));
+
+  const { media, dots, current } = buildMedia(p, { fitFirst: true });
+
   const actions = el('div', 'actions');
   const likeBtn = el('button', 'like'); likeBtn.innerHTML = ICON.heart; likeBtn.title = '좋아요';
   const cBtn = el('button'); cBtn.innerHTML = ICON.comment; cBtn.title = '댓글';
   const linkBtn = el('button', 'right'); linkBtn.innerHTML = ICON.link; linkBtn.title = '사진 링크 복사';
   actions.append(likeBtn, cBtn, linkBtn);
 
-  // 본문
   const body = el('div', 'body');
   const likesEl = el('div', 'likes');
-  let likes = p.likes || 0;
-  const paintLike = () => {
-    likeBtn.classList.toggle('on', liked.has(p.id));
-    likesEl.textContent = `좋아요 ${likes.toLocaleString()}개`;
-  };
-  paintLike();
   body.append(likesEl);
   if (p.caption) {
     const cap = el('div', 'caption'); cap.append(nameEl(p.nick), document.createTextNode(p.caption)); body.append(cap);
   }
-  const moreBtn = el('button', 'more');
   const list = el('div', 'comments');
-  let total = p.commentCount || 0;
-  const paintMore = () => { moreBtn.hidden = total <= list.children.length; moreBtn.textContent = `댓글 ${total}개 모두 보기`; };
-  (p.comments || []).forEach((c) => list.append(renderComment(c)));
-  paintMore();
-  moreBtn.onclick = async () => {
-    moreBtn.textContent = '불러오는 중…';
-    try {
-      const { comments } = await api('/api/comments?id=' + encodeURIComponent(p.id));
-      list.innerHTML = ''; comments.forEach((c) => list.append(renderComment(c)));
-      total = Math.max(total, comments.length);
-    } catch (e) { toast(e.message); }
-    paintMore();
+  const showComments = (arr) => {
+    list.innerHTML = '';
+    if (!arr.length) list.append(el('div', 'comments-empty', '아직 댓글이 없어요. 첫 댓글을 남겨보세요.'));
+    arr.forEach((c) => list.append(renderComment(c)));
   };
-  body.append(moreBtn, list, el('div', 'ago', ago(p.at)));
+  showComments(s.comments);
+  if (s.total > s.comments.length) {
+    list.prepend(el('div', 'comments-empty', '댓글 불러오는 중…'));
+    api('/api/comments?id=' + encodeURIComponent(p.id))
+      .then(({ comments }) => { s.comments = comments; s.total = Math.max(s.total, comments.length); showComments(comments); s.paint(); })
+      .catch((e) => toast(e.message));
+  }
+  body.append(list, el('div', 'ago', ago(p.at)));
 
-  // 댓글 입력
   const form = el('form', 'cform');
   const input = el('input'); input.maxLength = 300; input.dataset.cinput = '1';
   const send = el('button', null, '게시'); send.disabled = true;
@@ -382,28 +496,22 @@ function renderPost(p) {
     send.disabled = true;
     try {
       const { comment, count } = await api('/api/comments', { id: p.id, nick: myNick(), text });
-      list.append(renderComment(comment)); total = Math.max(count, list.children.length);
-      input.value = ''; paintMore();
+      s.comments = [...s.comments, comment]; s.total = Math.max(count, s.comments.length);
+      showComments(s.comments); input.value = ''; s.paint();
     } catch (err) { toast(err.message); send.disabled = false; }
   });
 
-  // 좋아요 (한 브라우저당 1번, 다시 누르면 취소)
-  let busy = false;
-  async function toggleLike(force) {
-    const on = force ?? !liked.has(p.id);
-    if (on === liked.has(p.id) || busy) return;
-    busy = true;
-    on ? liked.add(p.id) : liked.delete(p.id); saveLiked();
-    likes = Math.max(0, likes + (on ? 1 : -1)); paintLike();
-    if (on) { likeBtn.classList.remove('pop'); void likeBtn.offsetWidth; likeBtn.classList.add('pop'); }
-    try { likes = (await api('/api/like', { id: p.id, on })).likes; }
-    catch (e) { on ? liked.delete(p.id) : liked.add(p.id); saveLiked(); likes = Math.max(0, likes + (on ? -1 : 1)); toast('좋아요 실패: ' + e.message); }
-    busy = false; paintLike();
-  }
-  likeBtn.onclick = () => toggleLike();
+  const paint = () => {
+    paintLikeBtn(likeBtn, s);
+    likesEl.textContent = `좋아요 ${s.likes.toLocaleString()}개`;
+  };
+  s.subs.add(paint); paint();
+  closeCurrent = () => s.subs.delete(paint);
+
+  likeBtn.onclick = () => toggleLike(s);
   // 사진 두 번 탭 → 좋아요 (인스타처럼)
   const burst = media.querySelector('.burst');
-  const heartBurst = () => { burst.classList.remove('go'); void burst.offsetWidth; burst.classList.add('go'); toggleLike(true); };
+  const heartBurst = () => { burst.classList.remove('go'); void burst.offsetWidth; burst.classList.add('go'); toggleLike(s, true); };
   media.addEventListener('dblclick', heartBurst);
   let lastTap = 0;
   media.addEventListener('touchend', (e) => {
@@ -413,13 +521,12 @@ function renderPost(p) {
   });
   cBtn.onclick = () => input.focus();
   linkBtn.onclick = async () => {
-    const i = Math.round(track.scrollLeft / Math.max(1, track.clientWidth));
-    try { await navigator.clipboard.writeText(p.images[i] || p.images[0]); toast('사진 링크를 복사했어요.'); }
+    try { await navigator.clipboard.writeText(p.images[current()] || p.images[0]); toast('사진 링크를 복사했어요.'); }
     catch { toast('복사하지 못했어요.'); }
   };
 
   card.append(head, media, dots, actions, body, form);
-  if (p.images.length < 2) dots.style.height = '0', dots.style.paddingTop = '16px';
+  if (p.images.length < 2) dots.style.height = '0', dots.style.paddingTop = '14px';
   return card;
 }
 
